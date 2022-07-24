@@ -4,19 +4,27 @@ using System.Text.Json;
 
 namespace DarkHumanizrCore;
 
-public static class Humanizr
+public static class HumanizationHandler
 {
     public static void Humanize(HumanizerOptions options)
     {
-        var settings = LoadSettings(options.SettingsFilePath);
+        var randomizer = new Randomizer(new Random());
+        var humanizer = new Humanizer(randomizer);
+
+        //var settingsResult = LoadSettings(options.SettingsFilePath);
+
+        //if (!settingsResult.IsSuccess)
+        //{
+        //    return;
+        //}
+
+        var settings = new List<DrumSettings>(); //TODO read settings from a JSON file
 
         var mf = new MidiFile(options.SourceFilePath, false);
 
-        var distinctNotes = MappingLoader.GetDistinctNotes(mf);
+        humanizer.HumanizeMidiFile(mf, settings);
 
-        //TODO humanize
-
-        //MidiFile.Export(options.TargetFilePath, mf.Events);
+        MidiFile.Export(options.TargetFilePath, mf.Events);
     }
 
     private static Result<List<DrumSettings>> LoadSettings(string settingsFilePath)

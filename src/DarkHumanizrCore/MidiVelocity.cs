@@ -4,14 +4,17 @@ namespace DarkHumanizrCore;
 
 public class MidiVelocity : ValueOf<int, MidiVelocity>
 {
+    public const int Min = 0;
+    public const int Max = 127;
+
     protected override void Validate()
     {
-        if (Value < 0)
+        if (Value < Min)
         {
             throw new ArgumentOutOfRangeException(nameof(Value), Value, "MIDI velocity cannot be negative");
         }
 
-        if (Value > 127)
+        if (Value > Max)
         {
             throw new ArgumentOutOfRangeException(nameof(Value), Value, "MIDI velocity cannot exceed 127");
         }
