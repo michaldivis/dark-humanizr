@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DrumHumanizrCore\DrumHumanizrCore.csproj" />
+    <ProjectReference Include="..\DrumHumanizrCore\DarkHumanizrCore.csproj" />
   </ItemGroup>
 
 </Project>

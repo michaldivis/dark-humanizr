@@ -1,7 +1,7 @@
 ﻿using DarkMusicConcepts;
 using NAudio.Midi;
 
-namespace DrumHumanizrCore;
+namespace DarkHumanizrCore;
 public static class MappingLoader
 {
     private const int TrackNumber = 0; //TODO don't just use the first track number, check if there are more and do something about it

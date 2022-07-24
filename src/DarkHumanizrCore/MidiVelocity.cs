@@ -1,6 +1,6 @@
 ﻿using ValueOf;
 
-namespace DrumHumanizrCore;
+namespace DarkHumanizrCore;
 
 public class MidiVelocity : ValueOf<int, MidiVelocity>
 {

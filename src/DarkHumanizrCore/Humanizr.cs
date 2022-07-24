@@ -2,7 +2,7 @@
 using NAudio.Midi;
 using System.Text.Json;
 
-namespace DrumHumanizrCore;
+namespace DarkHumanizrCore;
 
 public static class Humanizr
 {
@@ -35,7 +35,7 @@ public static class Humanizr
         }
         catch (Exception ex)
         {
-            return Result.Fail(ex.ToString());
+            return Result.Fail(new Error("Failed to parse settings").CausedBy(ex));
         }
     }
 }

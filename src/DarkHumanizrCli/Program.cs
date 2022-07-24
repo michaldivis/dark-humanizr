@@ -1,5 +1,5 @@
 ﻿using CommandLine;
-using DrumHumanizrCore;
+using DarkHumanizrCore;
 
 var result = Parser.Default.ParseArguments<HumanizerOptions>(args)
     .WithParsed(Humanizr.Humanize);

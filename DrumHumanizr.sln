@@ -5,9 +5,9 @@ VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4AE7F9D4-4D00-4735-B52B-4B598394643F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrumHumanizrCore", "src\DrumHumanizrCore\DrumHumanizrCore.csproj", "{57EBBACD-D17C-4404-9EA2-5058B8E47BD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DarkHumanizrCore", "src\DarkHumanizrCore\DarkHumanizrCore.csproj", "{57EBBACD-D17C-4404-9EA2-5058B8E47BD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DarkHumanizrCli", "src\DarkHumanizrCli\DarkHumanizrCli.csproj", "{44246C54-1CF2-4842-91DF-759EA2C5E1A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DarkHumanizrCli", "src\DarkHumanizrCli\DarkHumanizrCli.csproj", "{44246C54-1CF2-4842-91DF-759EA2C5E1A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

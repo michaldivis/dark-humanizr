@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace DrumHumanizrCore;
+namespace DarkHumanizrCore;
 [Verb("humanize", isDefault: true, HelpText = "Humanize a drum MIDI file")]
 public class HumanizerOptions
 {

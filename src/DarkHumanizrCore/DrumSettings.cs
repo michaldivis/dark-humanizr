@@ -1,7 +1,7 @@
 ﻿using DarkMusicConcepts;
 using System.Text.Json.Serialization;
 
-namespace DrumHumanizrCore;
+namespace DarkHumanizrCore;
 
 public class DrumSettings
 {

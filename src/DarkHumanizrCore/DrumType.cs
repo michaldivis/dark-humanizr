@@ -1,4 +1,4 @@
-﻿namespace DrumHumanizrCore;
+﻿namespace DarkHumanizrCore;
 
 public enum DrumType
 {
