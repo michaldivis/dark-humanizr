@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DarkHumanizrCli": {
+      "commandName": "Project",
+      "commandLineArgs": "-s \"xxx\" -t \"xxx\" -v -m"
+    }
+  }
+}
