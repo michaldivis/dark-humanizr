@@ -2,7 +2,7 @@
   "profiles": {
     "DarkHumanizrCli": {
       "commandName": "Project",
-      "commandLineArgs": "-s \"xxx\" -t \"xxx\" -v -m"
+      "commandLineArgs": "-s \"C:\\Users\\Michal\\Downloads\\drum_midi_before.mid\" -t \"C:\\Users\\Michal\\Downloads\\drum_midi_after.mid\" -v -m"
     }
   }
 }
