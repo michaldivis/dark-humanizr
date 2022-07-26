@@ -82,7 +82,7 @@ internal class Humanizer
         return true;
     }
 
-    private NoteOnEvent? GetPrevious(IList<NoteOnEvent> evnts, int currentIndex)
+    private static NoteOnEvent? GetPrevious(IList<NoteOnEvent> evnts, int currentIndex)
     {
         if (currentIndex <= 0)
         {
@@ -92,7 +92,7 @@ internal class Humanizer
         return evnts[currentIndex - 1];
     }
 
-    private NoteOnEvent? GetNext(IList<NoteOnEvent> evnts, int currentIndex)
+    private static NoteOnEvent? GetNext(IList<NoteOnEvent> evnts, int currentIndex)
     {
         if (currentIndex >= evnts.Count - 1)
         {
