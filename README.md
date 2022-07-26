@@ -5,10 +5,13 @@ Before:
 
 ![image](https://user-images.githubusercontent.com/45868547/181001103-27a027b4-c378-4092-97c2-f0cc3037fe7c.png)
 
+Listen here: <a href="assets/example_before.mp3">example_before.mp3</a>
+
 After:
 
 ![image](https://user-images.githubusercontent.com/45868547/181001162-97caae93-c1fd-4727-b7e6-8e38ddc3ba48.png)
 
+Listen here: <a href="assets/example_after.mp3">example_after.mp3</a>
 
 # Getting Started
 1. Download the latest release from https://github.com/michaldivis/dark-humanizr/releases
