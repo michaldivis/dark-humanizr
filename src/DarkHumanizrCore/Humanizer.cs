@@ -5,23 +5,27 @@ namespace DarkHumanizrCore;
 internal class Humanizer
 {
     private readonly Randomizer _randomizer;
+    private readonly MidiFile _mf;
+    private readonly TimeWarden _timeWarden;
 
-    private const int _velocityChangeLimit = 10;
+    private const int _velocityStep = 15;
 
-    public Humanizer(Randomizer randomizer)
+    public Humanizer(MidiFile mf, Randomizer randomizer, TimeWarden timeWarden)
     {
+        _mf = mf;
         _randomizer = randomizer;
+        _timeWarden = timeWarden;        
     }
 
-    public void HumanizeMidiFile(MidiFile mf, List<DrumSettings> settings)
+    public void Humanize()
     {
-        for (int i = 0; i < mf.Tracks; i++)
+        for (int i = 0; i < _mf.Tracks; i++)
         {
-            HumanizeEvents(mf.Events[i], settings);
+            HumanizeEvents(_mf.Events[i]);
         }
     }
 
-    private void HumanizeEvents(IList<MidiEvent> evnts, List<DrumSettings> settings)
+    private void HumanizeEvents(IList<MidiEvent> evnts)
     {
         var perDrumEvnts = evnts
             .Where(a => a is NoteOnEvent)
@@ -31,19 +35,11 @@ internal class Humanizer
 
         foreach (var drumEvnts in perDrumEvnts)
         {
-            var noteNumber = drumEvnts.First().NoteNumber;
-            var setting = FindSettingsForNoteNumber(settings, noteNumber);
-            HumanizeDrumHits(setting, drumEvnts.ToList());
+            HumanizeDrumHits(drumEvnts.ToList());
         }
     }
 
-    private DrumSettings FindSettingsForNoteNumber(List<DrumSettings> settings, int noteNumber)
-    {
-        var setting = settings.FirstOrDefault(a => a.MidiNumber == noteNumber);
-        return setting ?? new();
-    }
-
-    private void HumanizeDrumHits(DrumSettings settings, IList<NoteOnEvent> evnts)
+    private void HumanizeDrumHits(IList<NoteOnEvent> evnts)
     {
         for (int i = 0; i < evnts.Count; i++)
         {
@@ -51,8 +47,68 @@ internal class Humanizer
             var previous = GetPrevious(evnts, i);
             var next = GetNext(evnts, i);
 
-            current.Velocity = _randomizer.RandomizeVelocity(current.Velocity, _velocityChangeLimit, _velocityChangeLimit);
+            HumanizeNeighboringHits(current, previous);
+            HumanizeNeighboringHits(current, next);
         }
+    }
+
+    private void HumanizeNeighboringHits(NoteOnEvent current, NoteOnEvent? other)
+    {
+        if(other is null)
+        {
+            return;
+        }
+
+        var tooCloseToOther = _timeWarden.AreNotesTooCloseToBePlayedHard(current, other);
+        if (!tooCloseToOther)
+        {
+            return;
+        }
+
+        var isCurrentMoreImportant = IsCurrentMoreImportant(current, other);
+        if (isCurrentMoreImportant)
+        {
+            return;
+        }
+
+        current.DecreaseVelocity(_velocityStep);
+    }
+
+    private bool IsCurrentMoreImportant(NoteOnEvent current, NoteOnEvent other)
+    {
+        var isCurrentOnQuarterBeat = _timeWarden.IsOnQuarterBeat(current.AbsoluteTime);
+        var isOtherOnQuarterBeat = _timeWarden.IsOnQuarterBeat(other.AbsoluteTime);
+
+        if(isCurrentOnQuarterBeat && !isOtherOnQuarterBeat)
+        {
+            return true;
+        }
+
+        var isCurrentOnEightBeat = _timeWarden.IsOnEightBeat(current.AbsoluteTime);
+        var isOtherOnEightBeat = _timeWarden.IsOnEightBeat(other.AbsoluteTime);
+
+        if (isCurrentOnEightBeat && !isOtherOnEightBeat)
+        {
+            return true;
+        }
+
+        var isCurrentOnSixteenthBeat = _timeWarden.IsOnSixteenthBeat(current.AbsoluteTime);
+        var isOtherOnSixteenthBeat = _timeWarden.IsOnSixteenthBeat(other.AbsoluteTime);
+
+        if (isCurrentOnSixteenthBeat && !isOtherOnSixteenthBeat)
+        {
+            return true;
+        }
+
+        var isCurrentOnThirtySecondBeat = _timeWarden.IsOnThirtySecondBeat(current.AbsoluteTime);
+        var isOtherOnThirtySecondBeat = _timeWarden.IsOnThirtySecondBeat(other.AbsoluteTime);
+
+        if (isCurrentOnThirtySecondBeat && !isOtherOnThirtySecondBeat)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private NoteOnEvent? GetPrevious(IList<NoteOnEvent> evnts, int currentIndex)

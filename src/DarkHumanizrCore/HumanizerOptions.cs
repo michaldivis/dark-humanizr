@@ -14,4 +14,6 @@ public class HumanizerOptions
     public bool ShouldHumanizeVelocity { get; init; }
     [Option(longName: "timing", shortName: 'm', Required = false, Default = false, HelpText = "Indicates whether timing should be humanized")]
     public bool ShouldHumanizeTiming { get; init; }
+    [Option(longName: "bpm", shortName: 'b', Required = false, Default = null, HelpText = "Static BPM to be used instead of reading tempo from MIDI tempo changes")]
+    public int? Bpm { get; init; }
 }

@@ -6,25 +6,27 @@ namespace DarkHumanizrCore;
 
 public static class HumanizationHandler
 {
-    public static void Humanize(HumanizerOptions options)
+    public static Result Humanize(HumanizerOptions options)
     {
         var randomizer = new Randomizer(new Random());
-        var humanizer = new Humanizer(randomizer);
-
-        //var settingsResult = LoadSettings(options.SettingsFilePath);
-
-        //if (!settingsResult.IsSuccess)
-        //{
-        //    return;
-        //}
-
-        var settings = new List<DrumSettings>(); //TODO read settings from a JSON file
 
         var mf = new MidiFile(options.SourceFilePath, false);
 
-        humanizer.HumanizeMidiFile(mf, settings);
+        var timeWardenResult = options.Bpm is null
+            ? TimeWarden.TryCreate(mf)
+            : TimeWarden.CreateWithStaticTempo(mf.DeltaTicksPerQuarterNote, (int)options.Bpm);
+
+        if (!timeWardenResult.IsSuccess)
+        {
+            return Result.Fail(timeWardenResult.Errors);
+        }
+
+        var humanizer = new Humanizer(mf, randomizer, timeWardenResult.Value);
+        humanizer.Humanize();
 
         MidiFile.Export(options.TargetFilePath, mf.Events);
+
+        return Result.Ok();
     }
 
     private static Result<List<DrumSettings>> LoadSettings(string settingsFilePath)
