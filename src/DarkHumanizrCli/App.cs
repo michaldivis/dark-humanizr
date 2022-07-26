@@ -28,7 +28,7 @@ internal static class App
     {
         if (!result.IsSuccess)
         {
-            Console.WriteLine("On or more errors occured:", Color.Red);
+            Console.WriteLine("One or more errors occured:", Color.Red);
             foreach (var error in result.Errors)
             {
                 Console.WriteLine(error, Color.Gray);

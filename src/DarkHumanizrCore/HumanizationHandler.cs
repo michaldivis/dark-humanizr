@@ -9,7 +9,14 @@ public static class HumanizationHandler
     {
         var randomizer = new Randomizer(new Random());
 
-        var mf = new MidiFile(options.SourceFilePath, false);
+        var mfResult = TryLoadMidiFile(options.SourceFilePath);
+
+        if (!mfResult.IsSuccess)
+        {
+            return Result.Fail(mfResult.Errors);
+        }
+
+        var mf = mfResult.Value;
 
         var timeWardenResult = options.Bpm is null
             ? TimeWarden.TryCreate(mf)
@@ -23,8 +30,26 @@ public static class HumanizationHandler
         var humanizer = new Humanizer(mf, randomizer, timeWardenResult.Value);
         humanizer.Humanize();
 
-        MidiFile.Export(options.TargetFilePath, mf.Events);
+        try
+        {
+            MidiFile.Export(options.TargetFilePath, mf.Events);
+            return Result.Ok();
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(new Error($"MIDI file export failed: {options.TargetFilePath}").CausedBy(ex));
+        }
+    }
 
-        return Result.Ok();
+    private static Result<MidiFile> TryLoadMidiFile(string filePath)
+    {
+        try
+        {
+            return new MidiFile(filePath, false);
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(new Error($"Failed to load MIDI file: {filePath}").CausedBy(ex));
+        }
     }
 }
