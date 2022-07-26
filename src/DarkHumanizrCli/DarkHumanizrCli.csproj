@@ -21,7 +21,7 @@
     <Product>DarkHumanizr</Product>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyName>dark-humanizer</AssemblyName>
+    <AssemblyName>humanizr</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
