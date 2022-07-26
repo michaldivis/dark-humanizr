@@ -46,14 +46,6 @@ internal class TimeWarden
         _points = CreatePoints(tempoEvents);
     }
 
-    public TimeSpan GetEventTime(long absoluteTime)
-    {
-        var point = GetLastPointBeforeTime(absoluteTime);
-        var relativeTimeWithinPoint = absoluteTime - point.TempoEvent.AbsoluteTime;
-        var eventTime = point.StartTime + CalculateTime(_deltaTicksPerQuarterNote, point.TempoEvent.MicrosecondsPerQuarterNote, relativeTimeWithinPoint);
-        return eventTime;
-    }
-
     private List<PointInMidiTime> CreatePoints(List<TempoEvent> tempoChanges)
     {
         var points = new List<PointInMidiTime>();
@@ -110,36 +102,6 @@ internal class TimeWarden
 
             beatTime /= 2; //decrease beatTime
         }
-    }
-
-    public bool IsOnWholeBeat(long absoluteTime)
-    {
-        return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote * 4);
-    }
-
-    public bool IsOnHalfBeat(long absoluteTime)
-    {
-        return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote * 2);
-    }
-
-    public bool IsOnQuarterBeat(long absoluteTime)
-    {
-        return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote);
-    }
-
-    public bool IsOnEightBeat(long absoluteTime)
-    {
-        return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote / 2);
-    }
-
-    public bool IsOnSixteenthBeat(long absoluteTime)
-    {
-        return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote / 4);
-    }
-
-    public bool IsOnThirtySecondBeat(long absoluteTime)
-    {
-        return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote / 8);
     }
 
     private bool IsOnBeat(long absoluteTime, long beatTime)
