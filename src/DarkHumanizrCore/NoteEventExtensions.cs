@@ -1,4 +1,5 @@
-﻿using NAudio.Midi;
+﻿using DarkMusicConcepts.Units;
+using NAudio.Midi;
 
 namespace DarkHumanizrCore;
 internal static class NoteEventExtensions

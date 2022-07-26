@@ -1,4 +1,6 @@
-﻿namespace DarkHumanizrCore;
+﻿using DarkMusicConcepts.Units;
+
+namespace DarkHumanizrCore;
 internal class Randomizer
 {
     private readonly Random _random;
