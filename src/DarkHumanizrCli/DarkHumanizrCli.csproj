@@ -9,7 +9,27 @@
 
   <PropertyGroup>
     <Version>0.1.0-alpha</Version>
+    <Description>A utility for humanizing drum MIDI.</Description>
+    <PackageProjectUrl>https://github.com/michaldivis/dark-humanizr</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/michaldivis/dark-humanizr</RepositoryUrl>
+    <PackageReleaseNotes>See https://github.com/michaldivis/dark-humanizr/releases.</PackageReleaseNotes>
+    <PackageTags>midi, drums, humanization</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>Divis.DarkHumanizr</PackageId>
+    <Authors>Michal Diviš</Authors>
+    <Company>Michal Diviš</Company>
+    <Product>DarkHumanizr</Product>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NeutralLanguage>en</NeutralLanguage>
+    <AssemblyName>dark-humanizer</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Colorful.Console" Version="1.2.15" />
