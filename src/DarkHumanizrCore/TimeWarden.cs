@@ -1,4 +1,5 @@
-﻿using FluentResults;
+﻿using DarkMusicConcepts.Units;
+using FluentResults;
 using NAudio.Midi;
 
 namespace DarkHumanizrCore;
@@ -11,6 +12,9 @@ internal class TimeWarden
 
     private readonly List<PointInMidiTime> _points;
     private readonly int _deltaTicksPerQuarterNote;
+
+    private const int _playingSpeedLimitMsHard = 200; //8th notes in 150BPM
+    private const int _playingSpeedLimitMsSoft = 70;
 
     public static Result<TimeWarden> CreateWithStaticTempo(int deltaTicksPerQuarterNote, int bpm)
     {
@@ -74,10 +78,38 @@ internal class TimeWarden
         return TimeSpan.FromSeconds(seconds);
     }
 
+    public TimeSpan GetNotesDistanceInTime(NoteEvent a, NoteEvent b)
+    {
+        var point = GetLastPointBeforeTime(a.AbsoluteTime);
+        var differenceInAbsoluteTime = Math.Abs(a.AbsoluteTime - b.AbsoluteTime);
+        var differenceInTime = CalculateTime(_deltaTicksPerQuarterNote, point.TempoEvent.MicrosecondsPerQuarterNote, differenceInAbsoluteTime);
+        return differenceInTime;
+    }
+
     public bool AreNotesTooCloseToBePlayedHard(NoteEvent a, NoteEvent b)
     {
-        var difference = Math.Abs(a.AbsoluteTime - b.AbsoluteTime);
-        return difference < _deltaTicksPerQuarterNote / 2;
+        var differenceInTime = GetNotesDistanceInTime(a, b);
+        return differenceInTime.Milliseconds < _playingSpeedLimitMsHard;
+    }
+
+    public int GetMaxAllowedVelocity(NoteEvent current, NoteEvent closestOther)
+    {
+        var differenceInTimeMs = GetNotesDistanceInTime(current, closestOther).Milliseconds;
+
+        if (differenceInTimeMs > _playingSpeedLimitMsHard)
+        {
+            return MidiVelocity.Max;
+        }
+
+        if (differenceInTimeMs < _playingSpeedLimitMsSoft)
+        {
+            return 95;
+        }
+
+        var position = (double)differenceInTimeMs / _playingSpeedLimitMsHard;
+        var maxVelocityForPosition = (MidiVelocity.Max - 95) * position + 95;
+
+        return (int)maxVelocityForPosition;
     }
 
     public bool IsCurrentMoreImportant(NoteEvent current, NoteEvent other)

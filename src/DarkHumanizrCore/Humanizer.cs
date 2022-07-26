@@ -10,6 +10,7 @@ internal class Humanizer
     private readonly TimeWarden _timeWarden;
 
     private const int _velocityStepPercentage = 10;
+    private const int _velocityRandomizationLimit = 3;
 
     public Humanizer(MidiFile mf, Randomizer randomizer, TimeWarden timeWarden)
     {
@@ -103,51 +104,29 @@ internal class Humanizer
         return evnts[currentIndex + 1];
     }
 
-    private int GetMaxAllowedVelocity(long distanceFromOtherHits)
-    {
-        if(distanceFromOtherHits > _mf.DeltaTicksPerQuarterNote / 2)
-        {
-            //8th notes or slower
-            return MidiVelocity.Max;
-        }
-
-        if (distanceFromOtherHits > _mf.DeltaTicksPerQuarterNote / 4)
-        {
-            //16th notes
-            return 110;
-        }
-
-        if (distanceFromOtherHits > _mf.DeltaTicksPerQuarterNote / 8)
-        {
-            //32nd notes
-            return 100;
-        }
-
-        return 90;
-    }
-
     private void EnsureAllowedVelocity(NoteOnEvent current, NoteOnEvent? previous, NoteOnEvent? next)
     {
-        var maxAllowedVelocity = MidiVelocity.Max;
-        long distanceFromPrevious = 0;
-        long distanceFromNext;
+        int maxAllowedVelocityFromPrevious = -1;
+        int maxAllowedVelocityFromNext = -1;
 
         if (previous is not null)
         {
-            distanceFromPrevious = current.AbsoluteTime - previous.AbsoluteTime;
-            maxAllowedVelocity = GetMaxAllowedVelocity(distanceFromPrevious);
+            maxAllowedVelocityFromPrevious = _timeWarden.GetMaxAllowedVelocity(current, previous);
         }
 
         if (next is not null)
         {
-            distanceFromNext = current.AbsoluteTime - next.AbsoluteTime;
-            if(distanceFromNext > distanceFromPrevious)
-            {
-                maxAllowedVelocity = GetMaxAllowedVelocity(distanceFromNext);
-            }
+            maxAllowedVelocityFromNext = _timeWarden.GetMaxAllowedVelocity(current, next);
         }
 
-        if(current.Velocity > maxAllowedVelocity)
+        var maxAllowedVelocity = Math.Max(maxAllowedVelocityFromPrevious, maxAllowedVelocityFromNext);
+
+        if(maxAllowedVelocity < 0)
+        {
+            return;
+        }
+
+        if (current.Velocity > maxAllowedVelocity)
         {
             current.Velocity = maxAllowedVelocity;
         }
@@ -155,6 +134,6 @@ internal class Humanizer
 
     private void RandomizeVelocity(NoteOnEvent evnt)
     {
-        evnt.Velocity = _randomizer.RandomizeVelocity(evnt.Velocity, 2, 2);
+        evnt.Velocity = _randomizer.RandomizeVelocity(evnt.Velocity, _velocityRandomizationLimit, _velocityRandomizationLimit);
     }
 }
