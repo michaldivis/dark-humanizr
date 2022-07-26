@@ -8,7 +8,7 @@ internal class Humanizer
     private readonly MidiFile _mf;
     private readonly TimeWarden _timeWarden;
 
-    private const int _velocityStep = 15;
+    private const int _velocityStepPercentage = 10;
 
     public Humanizer(MidiFile mf, Randomizer randomizer, TimeWarden timeWarden)
     {
@@ -47,73 +47,44 @@ internal class Humanizer
             var previous = GetPrevious(evnts, i);
             var next = GetNext(evnts, i);
 
-            HumanizeNeighboringHits(current, previous);
-            HumanizeNeighboringHits(current, next);
+            EnsureAllowedVelocity(current, previous, next);            
+
+            var hasBeenHumanizedBasedOnNext = HumanizeNeighboringHits(current, next);
+            if (!hasBeenHumanizedBasedOnNext)
+            {
+                HumanizeNeighboringHits(current, previous);
+            }
+
+            RandomizeVelocity(current);
         }
     }
 
-    private void HumanizeNeighboringHits(NoteOnEvent current, NoteOnEvent? other)
+    private bool HumanizeNeighboringHits(NoteOnEvent current, NoteOnEvent? other)
     {
         if(other is null)
         {
-            return;
+            return false;
         }
 
         var tooCloseToOther = _timeWarden.AreNotesTooCloseToBePlayedHard(current, other);
         if (!tooCloseToOther)
         {
-            return;
+            return false;
         }
 
-        var isCurrentMoreImportant = IsCurrentMoreImportant(current, other);
+        var isCurrentMoreImportant = _timeWarden.IsCurrentMoreImportant(current, other);
         if (isCurrentMoreImportant)
         {
-            return;
+            return false;
         }
 
-        current.DecreaseVelocity(_velocityStep);
-    }
-
-    private bool IsCurrentMoreImportant(NoteOnEvent current, NoteOnEvent other)
-    {
-        var isCurrentOnQuarterBeat = _timeWarden.IsOnQuarterBeat(current.AbsoluteTime);
-        var isOtherOnQuarterBeat = _timeWarden.IsOnQuarterBeat(other.AbsoluteTime);
-
-        if(isCurrentOnQuarterBeat && !isOtherOnQuarterBeat)
-        {
-            return true;
-        }
-
-        var isCurrentOnEightBeat = _timeWarden.IsOnEightBeat(current.AbsoluteTime);
-        var isOtherOnEightBeat = _timeWarden.IsOnEightBeat(other.AbsoluteTime);
-
-        if (isCurrentOnEightBeat && !isOtherOnEightBeat)
-        {
-            return true;
-        }
-
-        var isCurrentOnSixteenthBeat = _timeWarden.IsOnSixteenthBeat(current.AbsoluteTime);
-        var isOtherOnSixteenthBeat = _timeWarden.IsOnSixteenthBeat(other.AbsoluteTime);
-
-        if (isCurrentOnSixteenthBeat && !isOtherOnSixteenthBeat)
-        {
-            return true;
-        }
-
-        var isCurrentOnThirtySecondBeat = _timeWarden.IsOnThirtySecondBeat(current.AbsoluteTime);
-        var isOtherOnThirtySecondBeat = _timeWarden.IsOnThirtySecondBeat(other.AbsoluteTime);
-
-        if (isCurrentOnThirtySecondBeat && !isOtherOnThirtySecondBeat)
-        {
-            return true;
-        }
-
-        return false;
+        current.DecreaseVelocity(_velocityStepPercentage);
+        return true;
     }
 
     private NoteOnEvent? GetPrevious(IList<NoteOnEvent> evnts, int currentIndex)
     {
-        if (currentIndex <=0)
+        if (currentIndex <= 0)
         {
             return null;
         }
@@ -129,5 +100,60 @@ internal class Humanizer
         }
 
         return evnts[currentIndex + 1];
+    }
+
+    private int GetMaxAllowedVelocity(long distanceFromOtherHits)
+    {
+        if(distanceFromOtherHits > _mf.DeltaTicksPerQuarterNote / 2)
+        {
+            //8th notes or slower
+            return MidiVelocity.Max;
+        }
+
+        if (distanceFromOtherHits > _mf.DeltaTicksPerQuarterNote / 4)
+        {
+            //16th notes
+            return 110;
+        }
+
+        if (distanceFromOtherHits > _mf.DeltaTicksPerQuarterNote / 8)
+        {
+            //32nd notes
+            return 100;
+        }
+
+        return 90;
+    }
+
+    private void EnsureAllowedVelocity(NoteOnEvent current, NoteOnEvent? previous, NoteOnEvent? next)
+    {
+        var maxAllowedVelocity = MidiVelocity.Max;
+        long distanceFromPrevious = 0;
+        long distanceFromNext;
+
+        if (previous is not null)
+        {
+            distanceFromPrevious = current.AbsoluteTime - previous.AbsoluteTime;
+            maxAllowedVelocity = GetMaxAllowedVelocity(distanceFromPrevious);
+        }
+
+        if (next is not null)
+        {
+            distanceFromNext = current.AbsoluteTime - next.AbsoluteTime;
+            if(distanceFromNext > distanceFromPrevious)
+            {
+                maxAllowedVelocity = GetMaxAllowedVelocity(distanceFromNext);
+            }
+        }
+
+        if(current.Velocity > maxAllowedVelocity)
+        {
+            current.Velocity = maxAllowedVelocity;
+        }
+    }
+
+    private void RandomizeVelocity(NoteOnEvent evnt)
+    {
+        evnt.Velocity = _randomizer.RandomizeVelocity(evnt.Velocity, 2, 2);
     }
 }

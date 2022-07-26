@@ -88,6 +88,40 @@ internal class TimeWarden
         return difference < _deltaTicksPerQuarterNote / 2;
     }
 
+    public bool IsCurrentMoreImportant(NoteEvent current, NoteEvent other)
+    {
+        var beatTime = _deltaTicksPerQuarterNote * 4; //whole notes
+
+        while (true)
+        {
+            if(beatTime < _deltaTicksPerQuarterNote / 8)
+            {
+                //if less than 32nd notes, quit
+                return false;
+            }
+
+            var isCurrentOnBeat = IsOnBeat(current.AbsoluteTime, beatTime);
+            var isOtherOnBeat = IsOnBeat(other.AbsoluteTime, beatTime);
+
+            if (isCurrentOnBeat && !isOtherOnBeat)
+            {
+                return true;
+            }
+
+            beatTime /= 2; //decrease beatTime
+        }
+    }
+
+    public bool IsOnWholeBeat(long absoluteTime)
+    {
+        return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote * 4);
+    }
+
+    public bool IsOnHalfBeat(long absoluteTime)
+    {
+        return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote * 2);
+    }
+
     public bool IsOnQuarterBeat(long absoluteTime)
     {
         return IsOnBeat(absoluteTime, _deltaTicksPerQuarterNote);
@@ -118,7 +152,8 @@ internal class TimeWarden
 
     private bool IsTimeOnBeat(long time, long beatTime)
     {
-        var isOnBeat = Math.Abs(time / beatTime) < 10;
+        var distanceFromBeat = time % beatTime;
+        var isOnBeat = distanceFromBeat < 10;
         return isOnBeat;
     }
 
